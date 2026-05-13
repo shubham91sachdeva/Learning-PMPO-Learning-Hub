@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM / PO Learning Hub — Shubham Sachdeva</title>
+<style>
+:root {
+  --navy: #0F1F3D; --gold: #C9943A; --teal: #0A6B6B; --dark: #1A1A2E;
+  --lgray: #F5F5F5; --mgray: #e0e0e0; --white: #fff;
+  --green: #1a7a4a; --red: #8B2020; --purple: #5B2D8E; --blue: #1565C0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: var(--dark); }
+
+/* NAV */
+.topnav { background: var(--navy); border-bottom: 3px solid var(--gold); padding: 0 24px; display: flex; align-items: center; flex-wrap: wrap; position: sticky; top: 0; z-index: 200; }
+.topnav .brand { color: #fff; font-weight: 700; font-size: 15px; padding: 14px 20px 14px 0; border-right: 1px solid #334; margin-right: 8px; white-space: nowrap; }
+.topnav a { color: #AAB8CC; text-decoration: none; font-size: 13px; padding: 14px 12px; display: inline-block; cursor: pointer; white-space: nowrap; }
+.topnav a:hover, .topnav a.active { color: var(--gold); }
+
+/* LAYOUT */
+.container { max-width: 1000px; margin: 0 auto; padding: 28px 16px 80px; }
+
+/* CARDS */
+.card { background: var(--white); border-radius: 10px; padding: 24px 28px; margin-bottom: 22px; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+.card-title { font-size: 12px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--navy); border-bottom: 2px solid var(--gold); padding-bottom: 8px; margin-bottom: 18px; }
+
+/* HERO */
+.hero { background: var(--navy); border-radius: 10px; padding: 28px 32px; margin-bottom: 22px; border-bottom: 4px solid var(--gold); }
+.hero h1 { color: #fff; font-size: 24px; margin-bottom: 6px; }
+.hero p { color: #AAB8CC; font-size: 14px; line-height: 1.6; }
+.hero .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.badge { background: rgba(201,148,58,.15); border: 1px solid var(--gold); color: var(--gold); font-size: 12px; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+
+/* PROGRESS DASHBOARD */
+.progress-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+.prog-card { background: var(--white); border-radius: 10px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.07); border-top: 3px solid var(--gold); }
+.prog-card .num { font-size: 28px; font-weight: 700; color: var(--navy); }
+.prog-card .lbl { font-size: 12px; color: #666; margin-top: 4px; }
+.prog-bar-wrap { background: var(--mgray); border-radius: 99px; height: 8px; margin-top: 8px; overflow: hidden; }
+.prog-bar { background: var(--gold); height: 8px; border-radius: 99px; transition: width .4s ease; }
+
+/* WEEK PLAN */
+.week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+.day-box { background: var(--lgray); border-radius: 8px; padding: 10px 8px; text-align: center; border-top: 3px solid var(--mgray); cursor: pointer; transition: all .2s; }
+.day-box:hover { border-top-color: var(--gold); }
+.day-box.today { border-top-color: var(--teal); background: #EEF4F4; }
+.day-box.done { border-top-color: var(--green); background: #F0FFF8; }
+.day-box .day-num { font-size: 18px; font-weight: 700; color: var(--navy); }
+.day-box .day-lbl { font-size: 11px; color: #666; margin-bottom: 6px; }
+.day-box .day-topic { font-size: 11px; font-weight: 600; color: var(--teal); line-height: 1.3; }
+
+/* CONCEPTS */
+.concept-list { list-style: none; }
+.concept-item { border: 1px solid #E8EEF7; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }
+.concept-header { display: flex; align-items: center; padding: 13px 16px; cursor: pointer; gap: 12px; background: var(--white); transition: background .15s; }
+.concept-header:hover { background: var(--lgray); }
+.concept-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--mgray); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; transition: all .2s; }
+.concept-check.done { background: var(--green); border-color: var(--green); }
+.concept-check.done::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+.concept-tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; white-space: nowrap; }
+.tag-pm { background: #E3F0FF; color: var(--blue); }
+.tag-po { background: #F0E8FF; color: var(--purple); }
+.tag-both { background: #FFF3E0; color: #E65100; }
+.concept-title { font-size: 14px; font-weight: 600; color: var(--navy); flex: 1; }
+.concept-arrow { color: var(--gold); font-size: 16px; transition: transform .2s; }
+.concept-arrow.open { transform: rotate(180deg); }
+.concept-body { display: none; padding: 0 16px 18px; }
+.concept-body.show { display: block; }
+.def-box { background: #EEF4F4; border-left: 3px solid var(--teal); padding: 12px 14px; border-radius: 0 6px 6px 0; margin-bottom: 12px; font-size: 14px; line-height: 1.7; color: #222; }
+.def-box strong { color: var(--teal); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+.example-box { background: #FFFBF0; border-left: 3px solid var(--gold); padding: 12px 14px; border-radius: 0 6px 6px 0; margin-bottom: 12px; font-size: 13px; line-height: 1.7; color: #333; }
+.example-box strong { color: var(--gold); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+.army-box { background: #F5F0FF; border-left: 3px solid var(--purple); padding: 12px 14px; border-radius: 0 6px 6px 0; font-size: 13px; line-height: 1.7; color: #333; }
+.army-box strong { color: var(--purple); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+
+/* QUIZ */
+.quiz-section { display: none; }
+.quiz-section.active { display: block; }
+.q-card { background: var(--white); border-radius: 10px; padding: 24px; margin-bottom: 0; box-shadow: 0 2px 8px rgba(0,0,0,.07); }
+.q-meta { font-size: 11px; color: #888; margin-bottom: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: .8px; }
+.q-text { font-size: 16px; font-weight: 600; color: var(--navy); margin-bottom: 20px; line-height: 1.5; }
+.q-options { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.q-opt { padding: 13px 16px; border: 2px solid var(--mgray); border-radius: 8px; cursor: pointer; font-size: 14px; color: #333; transition: all .15s; }
+.q-opt:hover { border-color: var(--gold); background: #FFFBF0; }
+.q-opt.selected { border-color: var(--navy); background: #E8EEF7; }
+.q-opt.correct { border-color: var(--green); background: #F0FFF8; color: var(--green); font-weight: 600; }
+.q-opt.wrong { border-color: var(--red); background: #FFF5F5; color: var(--red); }
+.q-explain { display: none; margin-top: 16px; padding: 14px; background: var(--lgray); border-radius: 8px; font-size: 14px; line-height: 1.7; color: #333; border-left: 3px solid var(--teal); }
+.q-explain.show { display: block; }
+.q-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+.btn { padding: 10px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; }
+.btn-primary { background: var(--navy); color: #fff; }
+.btn-primary:hover { background: #1a3560; }
+.btn-gold { background: var(--gold); color: var(--navy); }
+.btn-gold:hover { opacity: .9; }
+.btn-outline { background: transparent; border: 2px solid var(--navy); color: var(--navy); }
+.q-score { font-size: 13px; color: #666; }
+
+/* SCENARIO */
+.scenario-box { background: #EEF4F4; border: 1px solid #b0d0d0; border-radius: 8px; padding: 16px; margin-bottom: 16px; font-size: 14px; line-height: 1.7; color: #222; }
+.scenario-box .s-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--teal); margin-bottom: 6px; }
+.answer-area { width: 100%; min-height: 120px; border: 2px solid var(--mgray); border-radius: 8px; padding: 12px; font-size: 14px; font-family: inherit; resize: vertical; outline: none; transition: border .2s; }
+.answer-area:focus { border-color: var(--navy); }
+.ideal-answer { display: none; background: #F0FFF8; border-left: 3px solid var(--green); border-radius: 0 8px 8px 0; padding: 14px; margin-top: 12px; font-size: 14px; line-height: 1.7; color: #222; }
+.ideal-answer.show { display: block; }
+.ideal-answer strong { color: var(--green); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px; }
+
+/* GRAPH */
+.graph-wrap { display: flex; flex-direction: column; gap: 10px; }
+.graph-row { display: flex; align-items: center; gap: 12px; }
+.graph-label { width: 180px; font-size: 13px; color: #444; flex-shrink: 0; }
+.graph-track { flex: 1; background: var(--mgray); border-radius: 99px; height: 14px; overflow: hidden; }
+.graph-fill { height: 14px; border-radius: 99px; transition: width .6s ease; }
+.graph-pct { width: 36px; font-size: 13px; font-weight: 700; color: var(--navy); text-align: right; }
+
+/* TABS */
+.tabs { display: flex; gap: 6px; margin-bottom: 18px; flex-wrap: wrap; }
+.tab { padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; border: 2px solid var(--mgray); color: #555; background: var(--white); transition: all .15s; }
+.tab.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+/* CHEATSHEET */
+.cs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.cs-box { background: var(--lgray); border-radius: 8px; padding: 16px; }
+.cs-box h4 { font-size: 13px; font-weight: 700; color: var(--navy); margin-bottom: 10px; border-bottom: 1px solid var(--mgray); padding-bottom: 6px; }
+.cs-box table { width: 100%; border-collapse: collapse; }
+.cs-box td { font-size: 12px; padding: 5px 4px; vertical-align: top; border-bottom: 1px solid #e8e8e8; }
+.cs-box td:first-child { font-weight: 700; color: var(--teal); width: 42%; }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .progress-grid { grid-template-columns: 1fr 1fr; }
+  .week-grid { grid-template-columns: repeat(4, 1fr); }
+  .cs-grid { grid-template-columns: 1fr; }
+  .graph-label { width: 120px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="brand">PM/PO Learning Hub</div>
+  <a onclick="showSection('dashboard')" class="active" id="nav-dashboard">Dashboard</a>
+  <a onclick="showSection('concepts')" id="nav-concepts">Concepts</a>
+  <a onclick="showSection('quiz')" id="nav-quiz">Quiz Me</a>
+  <a onclick="showSection('scenarios')" id="nav-scenarios">Scenarios</a>
+  <a onclick="showSection('cheatsheet')" id="nav-cheatsheet">Cheatsheet</a>
+  <a onclick="showSection('weekplan')" id="nav-weekplan">7-Day Plan</a>
+</nav>
+
+<div class="container">
+
+<!-- ══════════════ DASHBOARD ══════════════ -->
+<div id="section-dashboard">
+  <div class="hero">
+    <h1>Project Manager & Product Owner — Interview Ready in 7 Days</h1>
+    <p>Concepts + examples from your Army/Drrop world · PMP-style MCQs · Scenario cases · STAR answers · Track your learning graph as you go.</p>
+    <div class="badges">
+      <span class="badge">🎯 Dual Target: PM + PO</span>
+      <span class="badge">📅 7 Days · 1–2 hrs/day</span>
+      <span class="badge">🏆 PMP Foundation Coverage</span>
+    </div>
+  </div>
+
+  <div class="progress-grid">
+    <div class="prog-card">
+      <div class="num" id="dash-learned">0</div>
+      <div class="lbl">Concepts Learned</div>
+      <div class="prog-bar-wrap"><div class="prog-bar" id="bar-learned" style="width:0%"></div></div>
+    </div>
+    <div class="prog-card">
+      <div class="num" id="dash-total">28</div>
+      <div class="lbl">Total Concepts</div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:100%;background:var(--mgray)"></div></div>
+    </div>
+    <div class="prog-card">
+      <div class="num" id="dash-quiz">0</div>
+      <div class="lbl">Quiz Score</div>
+      <div class="prog-bar-wrap"><div class="prog-bar" id="bar-quiz" style="width:0%;background:var(--teal)"></div></div>
+    </div>
+    <div class="prog-card">
+      <div class="num" id="dash-streak">Day 1</div>
+      <div class="lbl">Study Streak</div>
+      <div class="prog-bar-wrap"><div class="prog-bar" id="bar-streak" style="width:14%;background:var(--purple)"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Your Learning Graph</div>
+    <div class="graph-wrap" id="learning-graph"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Quick Start — Where to Begin Today</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+      <div style="background:#E8EEF7;border-radius:8px;padding:16px;cursor:pointer;border-top:3px solid var(--navy);" onclick="showSection('concepts')">
+        <div style="font-size:22px;margin-bottom:6px;">📚</div>
+        <div style="font-weight:700;color:var(--navy);font-size:14px;">Learn Concepts</div>
+        <div style="font-size:12px;color:#555;margin-top:4px;">Start with Agile, Sprint, Jira — tick off as you learn</div>
+      </div>
+      <div style="background:#EEF4F4;border-radius:8px;padding:16px;cursor:pointer;border-top:3px solid var(--teal);" onclick="showSection('quiz')">
+        <div style="font-size:22px;margin-bottom:6px;">🧠</div>
+        <div style="font-weight:700;color:var(--teal);font-size:14px;">Take the Quiz</div>
+        <div style="font-size:12px;color:#555;margin-top:4px;">PMP-style MCQs + scenario cases</div>
+      </div>
+      <div style="background:#FFF3E0;border-radius:8px;padding:16px;cursor:pointer;border-top:3px solid var(--gold);" onclick="showSection('weekplan')">
+        <div style="font-size:22px;margin-bottom:6px;">📅</div>
+        <div style="font-weight:700;color:#E65100;font-size:14px;">7-Day Plan</div>
+        <div style="font-size:12px;color:#555;margin-top:4px;">What to cover each day to be interview-ready</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ CONCEPTS ══════════════ -->
+<div id="section-concepts" style="display:none;">
+  <div class="card">
+    <div class="card-title">Concepts Library — Tick as You Learn</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+      <span style="font-size:12px;background:#E3F0FF;color:var(--blue);padding:3px 10px;border-radius:10px;font-weight:700;">🔵 PM</span>
+      <span style="font-size:12px;background:#F0E8FF;color:var(--purple);padding:3px 10px;border-radius:10px;font-weight:700;">🟣 PO</span>
+      <span style="font-size:12px;background:#FFF3E0;color:#E65100;padding:3px 10px;border-radius:10px;font-weight:700;">🟠 Both</span>
+      <span style="font-size:12px;color:#888;">Click concept to expand · tick circle when learned</span>
+    </div>
+    <ul class="concept-list" id="concept-list"></ul>
+  </div>
+</div>
+
+<!-- ══════════════ QUIZ ══════════════ -->
+<div id="section-quiz" style="display:none;">
+  <div class="card">
+    <div class="card-title">Quiz — PMP-Style MCQ + Scenario Cases</div>
+    <div class="tabs">
+      <div class="tab active" onclick="switchQuizTab('mcq',this)">MCQ (PMP-Style)</div>
+      <div class="tab" onclick="switchQuizTab('scenario',this)">Scenario Cases</div>
+      <div class="tab" onclick="switchQuizTab('star',this)">STAR Answers</div>
+    </div>
+
+    <!-- MCQ -->
+    <div id="quiz-mcq" class="quiz-section active">
+      <div class="q-card">
+        <div class="q-meta" id="mcq-meta">Question 1 of 15 · Agile & Scrum</div>
+        <div class="q-text" id="mcq-q"></div>
+        <ul class="q-options" id="mcq-opts"></ul>
+        <div class="q-explain" id="mcq-explain"></div>
+        <div class="q-nav">
+          <div class="q-score" id="mcq-score">Score: 0/0</div>
+          <div style="display:flex;gap:10px;">
+            <button class="btn btn-outline" onclick="prevMCQ()">← Prev</button>
+            <button class="btn btn-primary" onclick="nextMCQ()">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCENARIO -->
+    <div id="quiz-scenario" class="quiz-section">
+      <div class="q-card" id="scenario-card"></div>
+    </div>
+
+    <!-- STAR -->
+    <div id="quiz-star" class="quiz-section">
+      <div class="q-card" id="star-card"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SCENARIOS ══════════════ -->
+<div id="section-scenarios" style="display:none;">
+  <div class="card">
+    <div class="card-title">Real-World Scenario Practice</div>
+    <p style="font-size:13px;color:#666;margin-bottom:18px;">Read the situation, write your answer, then reveal the ideal PM/PO response. These are exactly the type of questions asked in interviews.</p>
+    <div id="all-scenarios"></div>
+  </div>
+</div>
+
+<!-- ══════════════ CHEATSHEET ══════════════ -->
+<div id="section-cheatsheet" style="display:none;">
+  <div class="card">
+    <div class="card-title">Quick Reference Cheatsheet — Print or Screenshot</div>
+    <div class="cs-grid" id="cheatsheet-grid"></div>
+  </div>
+</div>
+
+<!-- ══════════════ WEEK PLAN ══════════════ -->
+<div id="section-weekplan" style="display:none;">
+  <div class="card">
+    <div class="card-title">Your 7-Day Interview Prep Plan</div>
+    <div class="week-grid" id="week-grid" style="margin-bottom:22px;"></div>
+    <div id="day-detail"></div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const concepts = [
+  // ── AGILE & SCRUM ──
+  { id:'agile', title:'Agile Methodology', tag:'both', day:1,
+    def:'Agile is a way of managing projects by breaking work into small, manageable chunks and delivering them in short cycles called iterations (sprints). Instead of planning everything upfront, Agile teams adapt as they learn.',
+    example:'A software team building a food delivery app doesn\'t build the entire app before testing. They build the "order food" feature first, get feedback, improve it, then build "track delivery" — and so on.',
+    army:'In the Army, a mission is never fully pre-planned. You plan for the first phase, execute, assess the situation, and adapt. "Battle rhythm" = Agile sprints. You already think in Agile — you just didn\'t call it that.'
+  },
+  { id:'scrum', title:'Scrum Framework', tag:'both', day:1,
+    def:'Scrum is the most popular Agile framework. It has 3 roles (Scrum Master, Product Owner, Development Team), 4 events (Sprint, Sprint Planning, Daily Standup, Sprint Review, Retrospective), and 3 artifacts (Product Backlog, Sprint Backlog, Increment).',
+    example:'A team building a banking app: PO decides what features to build (backlog). Team picks what they can do in 2 weeks (sprint planning). Every morning they sync for 15 min (standup). At end of sprint, they demo to stakeholders (review).',
+    army:'Scrum Master = your Adjutant keeping the team unblocked. Product Owner = Commanding Officer with mission priorities. Daily Standup = morning briefing (what did we do, what are we doing, any blockers).'
+  },
+  { id:'sprint', title:'Sprint', tag:'both', day:1,
+    def:'A Sprint is a fixed time period (usually 1–4 weeks) during which a team completes a set amount of work. Every sprint has a goal, a backlog of tasks, and ends with a working product increment.',
+    example:'Sprint 1 (2 weeks): Build user login. Sprint 2 (2 weeks): Build product search. Sprint 3: Build checkout. At the end of each sprint, the feature works and can be demonstrated.',
+    army:'Like a "phase" in an operation. Phase 1: secure the perimeter. Phase 2: advance to objective. Each phase has a clear goal and timeline. You don\'t start Phase 3 until Phase 2 is complete and assessed.'
+  },
+  { id:'jira', title:'Jira', tag:'both', day:1,
+    def:'Jira is the most commonly used project management tool for Agile teams. It tracks tasks (called issues or tickets), organises them into sprints and backlogs, and shows progress via boards and reports.',
+    example:'A developer needs to fix a login bug. A "ticket" is created in Jira: title, description, priority (High), assignee (Dev A), status (To Do → In Progress → Done). The PM sees all tickets on a Kanban or Sprint board.',
+    army:'Think of Jira as your mission tasking system — every task has an owner, status, priority, and deadline. Like a digital equivalent of the ops room whiteboard.'
+  },
+  // ── BACKLOG & USER STORIES ──
+  { id:'backlog', title:'Product Backlog', tag:'po', day:2,
+    def:'The Product Backlog is a prioritised list of everything the product needs — features, bug fixes, improvements. The Product Owner owns and maintains it. The most important items are at the top.',
+    example:'For a fitness app, the backlog might include: #1 User registration, #2 Workout tracker, #3 Social sharing, #4 Dark mode, #5 Wearable integration. Items 1–2 go into the first sprint; items 4–5 are low priority.',
+    army:'Like your unit\'s "task list" sorted by operational priority. Mission-critical tasks are at the top. Nice-to-haves wait. As CO, you decide the order based on strategic objective — same as a PO.'
+  },
+  { id:'userstory', title:'User Story', tag:'po', day:2,
+    def:'A User Story is a short description of a feature from the user\'s perspective. Format: "As a [user type], I want [action], so that [benefit]." It captures what the user needs and why — not how to build it.',
+    example:'"As a customer, I want to track my delivery in real-time, so that I know when to expect it." This story tells the team what to build without prescribing the technical solution.',
+    army:'Like an "operational requirement" — "The patrol needs to be able to communicate with HQ from any location so that we can maintain situational awareness." Clear need, clear why, no prescribed solution.'
+  },
+  { id:'epicfeature', title:'Epic & Feature', tag:'po', day:2,
+    def:'An Epic is a large body of work that can be broken into smaller stories. A Feature is often a mid-level grouping between Epics and User Stories. Epic → Feature → User Story → Task.',
+    example:'Epic: "User Account Management". Features: "Registration", "Login", "Profile Settings". User Stories under Login: "Login with email/password", "Login with Google", "Forgot password flow".',
+    army:'Epic = Strategic Objective (e.g., Secure Eastern Border). Feature = Phase (e.g., Phase 1: Establish Forward Operating Base). User Story = Individual Task (e.g., Recon team surveys location).'
+  },
+  { id:'acceptancecriteria', title:'Acceptance Criteria', tag:'po', day:2,
+    def:'Acceptance Criteria define the conditions a user story must meet to be considered "done". They make the definition of success clear and testable before development starts.',
+    example:'User Story: "As a user, I want to log in with Google." Acceptance Criteria: 1) Google OAuth button appears on login page. 2) Clicking it opens Google auth popup. 3) After approval, user is logged in. 4) If Google login fails, error message shown.',
+    army:'Like the "Mission Success Criteria" in an Op Order. The mission is not complete until specific, verifiable conditions are met. No ambiguity on what "done" means.'
+  },
+  { id:'storypoints', title:'Story Points', tag:'both', day:2,
+    def:'Story Points are a unit of measure for estimating the effort required to complete a user story. They capture complexity, risk, and effort — not hours. Teams use the Fibonacci sequence (1, 2, 3, 5, 8, 13) to assign points.',
+    example:'"Reset password" = 2 points (simple). "Build real-time chat" = 13 points (complex, risky, large). A team\'s velocity is how many story points they complete per sprint. If velocity = 30 points, they plan ~30 points per sprint.',
+    army:'Like estimating mission complexity — "patrolling a known route" is simple (low points). "Extraction under fire from unknown terrain" is complex (high points). You factor in risk and ambiguity, not just time.'
+  },
+  // ── PROJECT MANAGEMENT FUNDAMENTALS ──
+  { id:'scope', title:'Scope & Scope Creep', tag:'pm', day:3,
+    def:'Scope defines what is included (and excluded) from a project. Scope creep happens when additional work is added without adjusting time, cost, or resources — often the biggest reason projects fail.',
+    example:'You\'re hired to build a company website. Mid-project, the client says "can you also add an online store?" — that\'s scope creep. A PM documents this as a change request, re-estimates cost/timeline, and gets approval before proceeding.',
+    army:'You\'re ordered to secure a village (scope). Halfway through, a senior officer says "also check the next village" — scope creep. Without additional resources and timeline, the original mission is at risk. You escalate formally.'
+  },
+  { id:'riskmanagement', title:'Risk Management', tag:'pm', day:3,
+    def:'Risk Management is the process of identifying, analysing, and responding to risks that could affect the project. Steps: Identify → Assess (probability + impact) → Plan response → Monitor.',
+    example:'Risk: "Key developer might leave mid-project." Probability: Medium. Impact: High. Response: Cross-train a second developer so knowledge is shared. Monitor: Check team stability monthly.',
+    army:'You always plan for contingencies. "If the primary route is blocked, we take Route B." Risk register = your "Contingency Annex" in an Op Order. You don\'t wait for the risk to materialise — you plan for it.'
+  },
+  { id:'stakeholders', title:'Stakeholder Management', tag:'pm', day:3,
+    def:'Stakeholders are anyone affected by or who can affect the project. Stakeholder management involves identifying them, understanding their interests and influence, and keeping them engaged appropriately.',
+    example:'For a new HR software rollout: CEO (high power, low interest → keep satisfied), HR team (high power, high interest → manage closely), IT team (high power, medium interest → consult), employees (low power, high interest → keep informed).',
+    army:'Before any operation, you map all parties: friendly forces, local population, allied units, command hierarchy. You know who to brief, who to consult, who to keep informed. Power-interest matrix = your "coordination matrix".'
+  },
+  { id:'critical_path', title:'Critical Path & Milestones', tag:'pm', day:3,
+    def:'The Critical Path is the longest sequence of dependent tasks in a project — any delay here delays the whole project. Milestones are significant checkpoints with no duration (they mark the completion of a phase).',
+    example:'Website project: Design (5 days) → Development (20 days) → Testing (5 days) → Launch. This 30-day chain is the critical path. "Design approved" and "Testing complete" are milestones.',
+    army:'Mission planning always identifies the critical path — the sequence that determines mission completion. A delay in the logistics chain delays the advance, regardless of how well other elements perform.'
+  },
+  { id:'wbs', title:'Work Breakdown Structure (WBS)', tag:'pm', day:3,
+    def:'A WBS breaks a project into smaller, manageable components. It starts with the final deliverable and decomposes it into work packages. Every piece of work in the project should appear in the WBS.',
+    example:'Project: Launch Mobile App. Level 1: Mobile App. Level 2: Design, Development, Testing, Launch. Level 3 under Development: Login module, Search module, Checkout module. Each module breaks into tasks.',
+    army:'Like an operation\'s task organisation. Mission → Sub-tasks → Individual team responsibilities. You don\'t manage a large mission as one block — you decompose it into trackable tasks with owners.'
+  },
+  // ── AGILE CEREMONIES & ROLES ──
+  { id:'standup', title:'Daily Standup / Daily Scrum', tag:'both', day:4,
+    def:'A 15-minute daily meeting where each team member answers: 1) What did I do yesterday? 2) What will I do today? 3) Any blockers? The Scrum Master facilitates and removes blockers. It\'s a sync, not a status meeting.',
+    example:'Dev 1: "Finished login UI, starting API integration today, blocked on API credentials from backend team." Scrum Master notes the blocker and resolves it outside the standup — doesn\'t solve it in the meeting.',
+    army:'Exactly like your morning briefing. Quick, structured, action-oriented. The CO doesn\'t solve problems in the briefing — problems get flagged and resolved separately. 15 minutes max.'
+  },
+  { id:'retrospective', title:'Sprint Retrospective', tag:'both', day:4,
+    def:'A retrospective is held at the end of each sprint. The team reflects on: What went well? What didn\'t? What will we improve? It\'s about continuous improvement, not blame. The output is actionable changes for the next sprint.',
+    example:'Sprint 5 retro: Well — "Daily standups were focused." Didn\'t go well — "Stories were too large, took more than one sprint." Improve — "Break stories into smaller pieces under 5 points in sprint planning."',
+    army:'After Action Review (AAR). Exactly the same format. What was the plan? What happened? Why the difference? What do we improve? You\'ve done hundreds of these in the Army. Same concept, different name.'
+  },
+  { id:'definition_of_done', title:'Definition of Done (DoD)', tag:'both', day:4,
+    def:'The Definition of Done is an agreed checklist of criteria that must be met before any user story or task can be called "complete." It ensures shared understanding and prevents teams from calling work done prematurely.',
+    example:'DoD for a software feature: Code written → Code reviewed by peer → Unit tests passed → Integration tested → Documentation updated → Deployed to staging environment. Only when all steps are complete is it "done."',
+    army:'Like a pre-mission checklist. Equipment checked, comms tested, briefing received, route confirmed — only when all boxes are ticked is the patrol cleared to move. No shortcuts on the DoD.'
+  },
+  { id:'velocity', title:'Velocity & Burndown', tag:'both', day:4,
+    def:'Velocity = the average number of story points a team completes per sprint. Used to predict future capacity. Burndown chart = a graph showing remaining work over time in a sprint. Ideally, the line burns down to zero by sprint end.',
+    example:'Team average velocity: 32 story points/sprint. Product backlog has 160 points remaining. Estimated time to complete: 5 sprints (~10 weeks). Burndown shows 40 points left by Day 8 — team is ahead of schedule.',
+    army:'Like tracking mission progress against the timeline. You always know your current rate of advance (velocity) and compare to the required rate to hit the objective on time. If behind — escalate and adapt.'
+  },
+  // ── PRODUCT OWNERSHIP ──
+  { id:'roadmap', title:'Product Roadmap', tag:'po', day:5,
+    def:'A product roadmap is a high-level visual plan that shows where a product is going and how it will get there over time. It aligns the team and stakeholders on priorities and direction — not a detailed schedule.',
+    example:'Q1: Core user registration + login. Q2: Product search + cart. Q3: Checkout + payment. Q4: Reviews + recommendations. The roadmap shows direction; sprints deliver the details.',
+    army:'Like your Campaign Plan. It doesn\'t show every tactical move — it shows strategic objectives by phase. Operational planning fills in the detail sprint-by-sprint (phase-by-phase).'
+  },
+  { id:'backlog_refinement', title:'Backlog Refinement / Grooming', tag:'po', day:5,
+    def:'Backlog refinement (grooming) is a regular session where the PO and team review upcoming backlog items — clarifying requirements, splitting large stories, estimating effort, and ensuring items are "sprint-ready" before sprint planning.',
+    example:'The PO brings the next 10 backlog items. Team asks questions: "What does \'social login\' mean — Google only or also Apple?" PO clarifies. Team estimates: 3 points. Story is refined and ready for sprint planning.',
+    army:'Like a pre-operation briefing walkthrough — before execution, you ensure every element of the plan is understood, resourced, and ready. No surprises on Day 1 of the operation.'
+  },
+  { id:'mvp', title:'MVP — Minimum Viable Product', tag:'po', day:5,
+    def:'An MVP is the simplest version of a product that delivers value to users and allows the team to gather feedback. Build the minimum, learn from real users, then iterate. Avoids building features nobody wants.',
+    example:'WhatsApp MVP: Just text messaging between two people. No voice, no video, no status, no groups. Once that worked and users loved it, they added layers. They didn\'t build everything before launching.',
+    army:'Like establishing a minimal Forward Operating Base (FOB) before expanding it. You set up essentials (comms, shelter, security) first — test they work — then build out. Don\'t wait for the perfect base before operations start.'
+  },
+  { id:'functional_req', title:'Functional vs Non-Functional Requirements', tag:'both', day:5,
+    def:'Functional requirements define what the system DOES (features, behaviour). Non-functional requirements define how well it does it (performance, security, reliability, scalability).',
+    example:'Functional: "Users can search for products by name." Non-functional: "Search results must load in under 2 seconds for 99% of queries. System must handle 10,000 concurrent users."',
+    army:'Functional = Mission Task ("Secure the bridge"). Non-functional = Standards ("Without civilian casualties, within 4 hours, maintaining radio contact throughout"). Both matter.'
+  },
+  // ── RESOURCE & PROJECT CONTROL ──
+  { id:'resource_mgmt', title:'Resource Management', tag:'pm', day:6,
+    def:'Resource management is the process of planning, allocating, and monitoring the people, budget, equipment, and time needed for a project. It ensures the right resources are available at the right time.',
+    example:'Project needs a designer for weeks 1–3 and a developer for weeks 2–8. If the designer is on leave in week 2, the PM plans coverage. Resource plan tracks utilisation: Developer at 80% capacity — flag before overloading.',
+    army:'You managed 300+ personnel and ₹100Cr+ resources. You tracked availability, allocated to tasks, managed leave, planned for contingencies. Resource management = personnel management + logistics, which you did at scale.'
+  },
+  { id:'change_mgmt', title:'Change Management', tag:'pm', day:6,
+    def:'Change management is the formal process for handling changes to project scope, timeline, or budget. Any change goes through: Request → Impact Analysis → Approval → Implementation. Prevents scope creep and uncontrolled changes.',
+    example:'Client asks to add a new feature mid-project. PM raises a Change Request: "Adding this feature will take 3 extra days and cost ₹50,000. It will delay the launch by 1 week." Client approves or rejects. Either way, it\'s documented.',
+    army:'In the Army, any deviation from the Op Order goes through a formal amendment process. You don\'t just change the mission — you get it authorised. Change management is the same — formal, documented, approved.'
+  },
+  { id:'pmp_knowledge', title:'PMP Knowledge Areas (PMBOK)', tag:'pm', day:6,
+    def:'The PMBOK (Project Management Body of Knowledge) defines 10 Knowledge Areas: Integration, Scope, Schedule, Cost, Quality, Resource, Communications, Risk, Procurement, Stakeholder Management. PMP certification is based on this framework.',
+    example:'For a construction project: Scope (what are we building?), Schedule (by when?), Cost (budget?), Risk (what if material prices rise?), Stakeholder (who needs updates?). All 10 areas must be managed for project success.',
+    army:'Like the Army\'s operational planning factors (METT-TC: Mission, Enemy, Terrain, Troops, Time, Civil). Both are systematic frameworks ensuring nothing is missed. PMP = the civilian equivalent of your staff planning doctrine.'
+  },
+  // ── ADVANCED CONCEPTS ──
+  { id:'kanban', title:'Kanban Board', tag:'both', day:7,
+    def:'Kanban is a visual workflow management system using columns (To Do, In Progress, Done) and cards representing tasks. Unlike Scrum, there are no sprints — work flows continuously. Jira boards often use Kanban.',
+    example:'Marketing team\'s Kanban: "Write blog post" card moves from "Ideas" → "Writing" → "Review" → "Published." The board shows at a glance how many items are in each stage. If "Review" has 8 items, that\'s a bottleneck.',
+    army:'Like your ops room status board — each task on a card showing its phase. You can instantly see what\'s stuck and where capacity needs to be redistributed. Visual management at its core.'
+  },
+  { id:'kpis', title:'KPIs & OKRs', tag:'both', day:7,
+    def:'KPIs (Key Performance Indicators) measure how well a goal is being achieved. OKRs (Objectives and Key Results) are a goal-setting framework: Objective = what you want to achieve. Key Results = measurable milestones.',
+    example:'OKR: Objective — "Grow the user base significantly." Key Results: 1) Reach 100,000 active users by Q3. 2) Reduce churn rate from 8% to 5%. 3) Achieve 4.5★ App Store rating. Each KR is measurable and verifiable.',
+    army:'You already use OKRs in the Army — "Operational Readiness" (Objective) measured by "% of equipment serviceable", "training completion rate", "personnel strength." You\'ve been setting OKRs your whole career.'
+  },
+  { id:'dependencies', title:'Dependencies & Blockers', tag:'pm', day:7,
+    def:'A dependency is when one task cannot start until another is completed. A blocker is anything preventing progress. Managing dependencies and removing blockers is a core PM/Scrum Master responsibility.',
+    example:'Task B (integrate payment gateway) depends on Task A (set up server). If Task A is delayed, Task B is blocked. PM flags this early, finds a workaround (use a mock server for testing), and keeps the project moving.',
+    army:'Logistics before an advance. The infantry cannot move until the logistics convoy delivers ammunition. That\'s a dependency. If the convoy is delayed, the advance is blocked. You manage the sequencing to prevent this.'
+  },
+  { id:'agile_vs_waterfall', title:'Agile vs. Waterfall', tag:'both', day:7,
+    def:'Waterfall is a sequential, linear project approach: Requirements → Design → Build → Test → Launch. All planning upfront. Agile is iterative — plan → build → test → feedback → repeat. Most modern teams use Agile or a hybrid.',
+    example:'Waterfall: Build the entire hospital software for 18 months, then launch. If requirements changed in month 9, you\'re stuck. Agile: Launch patient registration in month 2, gather feedback, adjust, add billing in month 4, etc.',
+    army:'Large defence procurement projects often use Waterfall (you specify the tank, then build it). Tactical operations use Agile (plan phase 1, execute, assess, adapt for phase 2). PMP covers both; modern PM roles prefer Agile.'
+  }
+];
+
+const mcqQuestions = [
+  { q:'A stakeholder requests a new feature that was not in the original project scope. As a PM, what should you do first?',
+    opts:['Refuse the request and redirect to the original scope','Raise a formal Change Request and assess the impact on timeline and cost','Ask the development team to fit it in the current sprint','Immediately add it to the backlog without informing other stakeholders'],
+    correct:1, explain:'The correct response is to raise a formal Change Request. Any scope change must be documented, impact-assessed (cost, time, quality), and approved before implementation. This is core Change Management.' },
+  { q:'A sprint is ending and 40% of the committed user stories are not complete. What should the team do?',
+    opts:['Extend the sprint until all stories are done','Move incomplete stories back to the product backlog and conduct a sprint review with what was completed','Mark all stories as done and fix in the next sprint','Cancel the sprint and start over with better planning'],
+    correct:1, explain:'Sprints should not be extended. Incomplete stories return to the backlog and are re-prioritised by the Product Owner. The sprint still ends on time, a review is held on completed work, and a retrospective discusses why stories were not completed.' },
+  { q:'Your team\'s velocity has been consistently 30 story points per sprint. You have 150 story points remaining in the backlog. How many sprints will it take to complete?',
+    opts:['4 sprints','5 sprints','6 sprints','Cannot be determined without more information'],
+    correct:1, explain:'150 ÷ 30 = 5 sprints. This is a basic velocity calculation. In practice, velocity can vary, so this is an estimate. PMP exams test this type of straightforward calculation.' },
+  { q:'As a Product Owner, who is responsible for prioritising the product backlog?',
+    opts:['The Scrum Master','The Development Team','The Product Owner','The Project Sponsor'],
+    correct:2, explain:'The Product Owner has sole authority over the product backlog — its content, order, and availability. The Scrum Master facilitates the process. The Development Team estimates effort but does not set priority.' },
+  { q:'What does "Definition of Done" mean in an Agile project?',
+    opts:['A list of all features to be built in the project','An agreed checklist of criteria that must be met before a story is considered complete','The date by which the project must be delivered','The acceptance criteria for a single user story'],
+    correct:1, explain:'Definition of Done is a shared agreement on the quality checklist that applies to every user story. It differs from Acceptance Criteria (which is specific to a story). DoD ensures the whole team has the same standard for "complete."' },
+  { q:'Which of the following is an example of a non-functional requirement?',
+    opts:['Users can search for products by name','The system must load search results in under 2 seconds','Users can add items to a shopping cart','The system sends a confirmation email after purchase'],
+    correct:1, explain:'Non-functional requirements define HOW WELL the system performs — speed, security, scalability, reliability. Functional requirements define WHAT the system does. "Load in under 2 seconds" is a performance (non-functional) requirement.' },
+  { q:'A project is behind schedule. The project manager wants to complete it on time without adding resources. Which technique should be used?',
+    opts:['Fast tracking — performing tasks in parallel that were originally planned sequentially','Crashing — adding more resources to critical path tasks','Scope reduction — removing deliverables from the project','Gold plating — adding extra features to impress the client'],
+    correct:0, explain:'Fast tracking means running tasks in parallel to shorten duration. It increases risk but doesn\'t add cost. Crashing reduces time but adds cost. Both are valid schedule compression techniques — fast tracking is cost-neutral.' },
+  { q:'In Scrum, what is the PRIMARY purpose of the Daily Standup?',
+    opts:['To report progress to management','To identify blockers and sync the team on progress toward the sprint goal','To estimate new user stories','To review completed work from the previous day'],
+    correct:1, explain:'The Daily Standup is a team synchronisation meeting — not a status report to management. Its purpose is to help the team collaborate and identify blockers early. The 3 questions (done, doing, blocked) keep it focused.' },
+  { q:'A risk has been identified: "The lead developer could leave the company mid-project." What is the BEST risk response strategy?',
+    opts:['Accept — do nothing and hope it doesn\'t happen','Avoid — assign the developer to a different project','Mitigate — cross-train another developer on the codebase now','Transfer — outsource all development to a third party'],
+    correct:2, explain:'Mitigation reduces the probability or impact of a risk. Cross-training another developer means if the lead leaves, knowledge is not lost. Acceptance is passive. Avoidance doesn\'t address the risk. Transfer is disproportionate.' },
+  { q:'What is the key difference between an Epic and a User Story?',
+    opts:['An Epic is written by the PO; a User Story is written by developers','An Epic is a large body of work that is broken into smaller User Stories','An Epic is a non-functional requirement; a User Story is functional','Epics are used in Waterfall; User Stories are used in Agile'],
+    correct:1, explain:'Epics are large work items that span multiple sprints and are decomposed into User Stories. The hierarchy is: Epic → Feature → User Story → Task. User Stories are small enough to be completed within a single sprint.' },
+  { q:'Story points are used to estimate:',
+    opts:['The exact number of hours a task will take','The complexity, risk, and relative effort of a user story','The cost of delivering a feature','The number of developers needed for a task'],
+    correct:1, explain:'Story points measure relative effort — capturing complexity, uncertainty, and work involved. They are NOT hours. This abstraction allows teams to avoid the trap of false precision and to account for risk and complexity alongside volume of work.' },
+  { q:'The critical path in a project schedule represents:',
+    opts:['The most expensive sequence of tasks','The sequence of tasks where any delay will delay the project end date','The tasks assigned to the most senior team members','The tasks with the highest risk'],
+    correct:1, explain:'The critical path is the longest chain of dependent tasks. Any delay on the critical path delays the project. Tasks not on the critical path have "float" — some delay is acceptable. PMs focus most attention on the critical path.' },
+  { q:'As a PM you discover that a team member has been adding extra features beyond the agreed scope "to make the client happy." This is called:',
+    opts:['Change Management','Scope Creep','Gold Plating','Feature Creep'],
+    correct:2, explain:'Gold Plating is when the team adds features or enhancements beyond the agreed scope without client request — often well-intentioned but dangerous. Scope Creep is when the CLIENT adds requirements without formal approval. Both are problems to manage.' },
+  { q:'Which Agile ceremony is focused on continuous improvement for the TEAM\'s processes?',
+    opts:['Sprint Planning','Sprint Review','Sprint Retrospective','Daily Standup'],
+    correct:2, explain:'The Sprint Retrospective focuses on how the team works — process improvement. Sprint Review focuses on the product — demonstrating completed work to stakeholders. Both happen at the end of a sprint but serve different purposes.' },
+  { q:'An Agile team\'s velocity is measured in:',
+    opts:['Hours worked per sprint','Features delivered per sprint','Story points completed per sprint','Number of bugs fixed per sprint'],
+    correct:2, explain:'Velocity = story points completed per sprint. It\'s used to predict how much work the team can take on in future sprints. Measuring hours or features doesn\'t capture the complexity dimension that story points provide.' }
+];
+
+const scenarios = [
+  { q:'Your team has committed to 35 story points in the current sprint. On Day 5 of a 10-day sprint, a senior stakeholder emails asking you to add a high-priority bug fix (estimated 8 points) to the current sprint. What do you do?',
+    ideal:'As PM/Scrum Master, you protect the sprint. You acknowledge the urgency, assess the bug\'s true priority (is it blocking production?), and explain that adding 8 points means removing 8 points from existing commitments. You work with the PO to either: (1) swap out a lower-priority story of similar size, or (2) if truly critical, raise it as an exception with stakeholder sign-off on what gets dropped. You document the change. You never just absorb scope without a trade-off conversation.' },
+  { q:'You are a Product Owner. The engineering team says a key feature will take 3 sprints (6 weeks) to build. The CEO wants it live in 2 weeks. How do you respond?',
+    ideal:'You don\'t agree to an impossible timeline. Instead, you facilitate an MVP conversation: "What\'s the minimum version of this feature that delivers value in 2 weeks?" Work with the team to scope down — maybe 80% of the value can be delivered in 2 weeks if you cut 3 lower-priority sub-features. Present the CEO with a clear trade-off: "We can launch a version in 2 weeks that does X and Y, but not Z. Full feature in 6 weeks." Let them decide. Document the decision.' },
+  { q:'Your project is 3 weeks behind schedule and over budget by 15%. You need to present this to the project sponsor. How do you structure the conversation?',
+    ideal:'Lead with facts, not apologies. Structure: 1) Current status — "We are 3 weeks behind schedule and 15% over budget." 2) Root cause — "Primary cause was [X: scope change in week 4, vendor delay, etc.]." 3) Impact — "Without intervention, launch moves from June 1 to June 22." 4) Options — "We have three options: (a) Add resources to crash the schedule — cost ₹X. (b) Reduce scope to meet original date. (c) Accept the delay." 5) Your recommendation — make one. Sponsors want solutions, not problems.' },
+  { q:'A key developer tells you privately that she is overwhelmed and thinks the sprint will not be delivered on time. It\'s Day 3 of a 10-day sprint. What do you do?',
+    ideal:'First, thank her for flagging it early — psychological safety is critical. Then assess: What specifically is she blocked on? Is it too many tasks, unclear requirements, or a technical problem? As PM: (1) Rebalance workload across the team. (2) Identify if any stories can be de-scoped or moved. (3) Remove any blockers you can remove. (4) Update the sprint forecast and communicate proactively to stakeholders if the sprint goal is at risk. Don\'t wait until Day 9 to surface this.' },
+  { q:'You have just joined a company as a PM. Your first project already has a backlog of 200 items with no clear prioritisation. The team doesn\'t know what to work on first. What do you do in week 1?',
+    ideal:'Week 1 priority is to establish clarity, not to start building. Steps: (1) Meet with key stakeholders to understand business objectives — what is the company trying to achieve? (2) Run a backlog prioritisation workshop with the PO using a framework like MoSCoW (Must have, Should have, Could have, Won\'t have) or value vs. effort matrix. (3) Identify the top 20 items that deliver the most business value. (4) Size the top 20 items with the team. (5) Build a Sprint 1 backlog from the top-priority, sprint-ready items. Communicate the new priority order to all stakeholders.' }
+];
+
+const starQuestions = [
+  { q:'Tell me about a time you managed a complex project with multiple competing priorities.',
+    role:'PM', star: {
+      s:'Eastern Command — no unified reporting structure across units was causing critical decision delays at command level.',
+      t:'As ADC, I was asked to design and implement a cross-unit coordination framework with no existing playbook.',
+      a:'Conducted gap assessment, mapped information flows, identified 3 critical bottlenecks. Built a 2-page weekly brief format. Piloted it for 3 cycles personally, trained staff officers, presented at steering review.',
+      r:'Decision latency dropped. Framework adopted formation-wide. Cited in the General\'s command review.'
+    }
+  },
+  { q:'Describe a situation where a stakeholder wanted something that was not feasible given your constraints. How did you handle it?',
+    role:'PM/PO', star: {
+      s:'At Drrop, our investor wanted a full D2C website, Amazon launch, and Blinkit launch simultaneously within 6 weeks.',
+      t:'As Co-Founder/COO, I had to manage expectations and deliver the maximum value within real constraints.',
+      a:'Sequenced the launches: Amazon first (revenue-generating, hard deadline). Presented a roadmap to the investor showing D2C Month 2, Blinkit Month 3, with rationale. Got buy-in on the sequencing.',
+      r:'Amazon launched on time (Jan 2026, 4.6★). Investor confidence maintained. Blinkit onboarding followed. No missed deadlines.'
+    }
+  },
+  { q:'Give an example of when you identified a risk and took steps to mitigate it before it became a problem.',
+    role:'PM', star: {
+      s:'Army ₹100Cr+ infrastructure project — one key vendor had a single point of failure for a critical component.',
+      t:'Ensure project delivery was not dependent on a single vendor\'s capacity or reliability.',
+      a:'Identified the dependency early in project planning. Qualified a second vendor as backup. Built buffer time into the schedule. Established monthly check-ins with primary vendor on delivery readiness.',
+      r:'When primary vendor faced a production delay in month 4, we switched to secondary vendor with zero project delay. The contingency plan executed exactly as designed.'
+    }
+  },
+  { q:'Tell me about a time you improved a team\'s processes or ways of working.',
+    role:'PM/PO', star: {
+      s:'At Drrop, I was spending 15–20 hrs/week on content creation, investor communications, and analysis — time I needed for strategic decisions.',
+      t:'Maintain output quality while freeing up high-judgment decision-making time.',
+      a:'Systematically templated all recurring work (investor updates, competitor analysis, content drafts). Shifted ~70% of execution to AI tools. Retained human judgment for validation and strategy.',
+      r:'Hours reduced from 15–20 to 4–5 per week. Output quality improved. Model is directly transferable to management reporting and analysis workflows.'
+    }
+  }
+];
+
+const weekPlan = [
+  { day:'Mon', label:'Day 1', topic:'Agile, Scrum, Sprint, Jira', concepts:['agile','scrum','sprint','jira'], hours:'1.5 hrs', tasks:['Read all 4 concepts and examples','Do 4 MCQs on Agile/Scrum','Practice "Tell me about agile" in 60 seconds out loud'] },
+  { day:'Tue', label:'Day 2', topic:'Backlog, User Stories, Epics, Story Points', concepts:['backlog','userstory','epicfeature','acceptancecriteria','storypoints'], hours:'2 hrs', tasks:['Read all 5 PO concepts','Write a user story for a feature YOU would want in an app','Do 4 MCQs on backlog/stories','Practice "What is a user story?" and "What are story points?" cold'] },
+  { day:'Wed', label:'Day 3', topic:'Scope, Risk, Stakeholders, Critical Path, WBS', concepts:['scope','riskmanagement','stakeholders','critical_path','wbs'], hours:'2 hrs', tasks:['Read all 5 PM fundamentals concepts','Map Drrop GTM launch as a WBS exercise','Do the stakeholder scenario question','Practise STAR: "Tell me about a time you managed risk"'] },
+  { day:'Thu', label:'Day 4', topic:'Agile Ceremonies, Velocity, DoD', concepts:['standup','retrospective','definition_of_done','velocity'], hours:'1.5 hrs', tasks:['Read 4 ceremony concepts','Do 4 MCQs (standups, retros, velocity)','Practice: "How would you run a sprint retrospective?"','Map Army AAR to Sprint Retrospective — write 3 sentences'] },
+  { day:'Fri', label:'Day 5', topic:'Roadmap, Refinement, MVP, Requirements', concepts:['roadmap','backlog_refinement','mvp','functional_req'], hours:'2 hrs', tasks:['Read 4 PO strategy concepts','Do 2 scenario questions','Write an MVP definition for Drrop Mix (1 paragraph)','Practise: "How do you prioritise a backlog?" (2 min answer)'] },
+  { day:'Sat', label:'Day 6', topic:'Resources, Change Mgmt, PMBOK, Kanban', concepts:['resource_mgmt','change_mgmt','pmp_knowledge','kanban'], hours:'2 hrs', tasks:['Read 4 remaining concepts','Do 4 MCQs across mixed topics','Practise: "How do you handle scope creep?" (use Army example)','Full STAR practice: all 4 STAR questions timed (2 min each)'] },
+  { day:'Sun', label:'Day 7', topic:'Full Review + Mock Interview', concepts:['kpis','dependencies','agile_vs_waterfall'], hours:'2 hrs', tasks:['Read final 3 concepts','Complete ALL remaining MCQs','Do 2 scenario questions','Full mock: answer 5 random questions without looking at notes','Review learning graph — celebrate progress 🎉'] }
+];
+
+const cheatsheetData = [
+  { title:'Agile Roles', rows:[['Scrum Master','Facilitates Scrum, removes blockers'],['Product Owner','Owns backlog, sets priorities'],['Dev Team','Self-organising, delivers increment'],['Stakeholder','Provides feedback at sprint review']] },
+  { title:'Sprint Ceremonies', rows:[['Sprint Planning','Select backlog items for sprint'],['Daily Standup','15 min sync (done/doing/blocked)'],['Sprint Review','Demo to stakeholders'],['Retrospective','Team process improvement']] },
+  { title:'Key Artifacts', rows:[['Product Backlog','Prioritised list of all work'],['Sprint Backlog','Work selected for current sprint'],['Increment','Working product at sprint end'],['Definition of Done','Shared quality checklist']] },
+  { title:'Story Point Scale', rows:[['1','Trivial, no unknowns'],['2–3','Small, clear requirements'],['5','Medium complexity'],['8','Large, some unknowns'],['13','Very large, significant risk']] },
+  { title:'PMP Knowledge Areas', rows:[['Scope','What is included/excluded'],['Schedule','Timeline and milestones'],['Cost','Budget management'],['Risk','Identify, assess, respond'],['Stakeholder','Engagement and communications']] },
+  { title:'Key Jargon', rows:[['Velocity','Story points per sprint'],['Burndown','Remaining work chart'],['Epic','Large feature group'],['Spike','Research task to reduce uncertainty'],['WBS','Work breakdown structure']] },
+  { title:'Risk Responses', rows:[['Avoid','Change plan to eliminate risk'],['Mitigate','Reduce probability or impact'],['Transfer','Shift risk to third party'],['Accept','Acknowledge and monitor']] },
+  { title:'Agile vs Waterfall', rows:[['Agile','Iterative, flexible, feedback-driven'],['Waterfall','Sequential, detailed upfront plan'],['Hybrid','Mix of both, common in large orgs'],['Best for Agile','Software, changing requirements'],['Best for Waterfall','Construction, fixed-scope projects']] }
+];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let learned = JSON.parse(localStorage.getItem('pm_learned') || '{}');
+let mcqAnswers = JSON.parse(localStorage.getItem('pm_mcq') || '{}');
+let currentMCQ = 0;
+let quizTab = 'mcq';
+let currentScenario = 0;
+let currentStar = 0;
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+function init() {
+  renderConcepts();
+  renderMCQ();
+  renderAllScenarios();
+  renderStar();
+  renderCheatsheet();
+  renderWeekPlan();
+  updateDashboard();
+  renderGraph();
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function showSection(name) {
+  ['dashboard','concepts','quiz','scenarios','cheatsheet','weekplan'].forEach(s => {
+    document.getElementById('section-'+s).style.display = s===name?'block':'none';
+    const navEl = document.getElementById('nav-'+s);
+    if (navEl) navEl.classList.toggle('active', s===name);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// CONCEPTS
+// ═══════════════════════════════════════════════════════
+function renderConcepts() {
+  const list = document.getElementById('concept-list');
+  list.innerHTML = '';
+  concepts.forEach(c => {
+    const li = document.createElement('li');
+    li.className = 'concept-item';
+    li.innerHTML = `
+      <div class="concept-header" onclick="toggleConcept('${c.id}')">
+        <div class="concept-check ${learned[c.id]?'done':''}" id="check-${c.id}" onclick="event.stopPropagation();toggleLearned('${c.id}')"></div>
+        <span class="concept-tag tag-${c.tag}">${c.tag==='pm'?'🔵 PM':c.tag==='po'?'🟣 PO':'🟠 Both'}</span>
+        <span class="concept-title">${c.title}</span>
+        <span class="concept-arrow" id="arr-${c.id}">▾</span>
+      </div>
+      <div class="concept-body" id="body-${c.id}">
+        <div class="def-box"><strong>Definition</strong>${c.def}</div>
+        <div class="example-box"><strong>Real-World Example</strong>${c.example}</div>
+        <div class="army-box"><strong>🎖️ Your Army / Drrop Context</strong>${c.army}</div>
+      </div>`;
+    list.appendChild(li);
+  });
+}
+
+function toggleConcept(id) {
+  const body = document.getElementById('body-'+id);
+  const arr = document.getElementById('arr-'+id);
+  body.classList.toggle('show');
+  arr.classList.toggle('open');
+}
+
+function toggleLearned(id) {
+  learned[id] = !learned[id];
+  localStorage.setItem('pm_learned', JSON.stringify(learned));
+  document.getElementById('check-'+id).className = 'concept-check' + (learned[id]?' done':'');
+  updateDashboard();
+  renderGraph();
+}
+
+// ═══════════════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════════════
+function updateDashboard() {
+  const count = Object.values(learned).filter(Boolean).length;
+  const total = concepts.length;
+  document.getElementById('dash-learned').textContent = count;
+  document.getElementById('bar-learned').style.width = Math.round(count/total*100)+'%';
+
+  const correct = Object.values(mcqAnswers).filter(v=>v==='correct').length;
+  const answered = Object.keys(mcqAnswers).length;
+  const pct = answered>0?Math.round(correct/answered*100):0;
+  document.getElementById('dash-quiz').textContent = pct+'%';
+  document.getElementById('bar-quiz').style.width = pct+'%';
+}
+
+// ═══════════════════════════════════════════════════════
+// GRAPH
+// ═══════════════════════════════════════════════════════
+function renderGraph() {
+  const categories = [
+    { label:'Agile & Scrum', ids:['agile','scrum','sprint','jira','standup','retrospective','definition_of_done','velocity'] },
+    { label:'Product Backlog & Stories', ids:['backlog','userstory','epicfeature','acceptancecriteria','storypoints','backlog_refinement','mvp'] },
+    { label:'PM Fundamentals', ids:['scope','riskmanagement','stakeholders','critical_path','wbs','pmp_knowledge','change_mgmt'] },
+    { label:'Planning & Roadmap', ids:['roadmap','functional_req','resource_mgmt','dependencies','agile_vs_waterfall','kpis','kanban'] }
+  ];
+  const colors = ['var(--teal)','var(--purple)','var(--navy)','var(--gold)'];
+  const g = document.getElementById('learning-graph');
+  g.innerHTML = '';
+  categories.forEach((cat,i) => {
+    const done = cat.ids.filter(id=>learned[id]).length;
+    const pct = Math.round(done/cat.ids.length*100);
+    g.innerHTML += `<div class="graph-row">
+      <div class="graph-label">${cat.label}</div>
+      <div class="graph-track"><div class="graph-fill" style="width:${pct}%;background:${colors[i]}"></div></div>
+      <div class="graph-pct">${pct}%</div>
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// MCQ
+// ═══════════════════════════════════════════════════════
+function renderMCQ() {
+  const q = mcqQuestions[currentMCQ];
+  document.getElementById('mcq-meta').textContent = `Question ${currentMCQ+1} of ${mcqQuestions.length}`;
+  document.getElementById('mcq-q').textContent = q.q;
+  const opts = document.getElementById('mcq-opts');
+  opts.innerHTML = '';
+  q.opts.forEach((opt,i) => {
+    const li = document.createElement('li');
+    li.className = 'q-opt';
+    li.textContent = `${String.fromCharCode(65+i)}. ${opt}`;
+    li.onclick = () => selectMCQ(i);
+    if (mcqAnswers[currentMCQ] !== undefined) {
+      if (i===q.correct) li.classList.add('correct');
+      else if (i===mcqAnswers[currentMCQ] && mcqAnswers[currentMCQ]!==q.correct) li.classList.add('wrong');
+      li.onclick = null;
+    }
+    opts.appendChild(li);
+  });
+  const explain = document.getElementById('mcq-explain');
+  explain.textContent = q.explain;
+  if (mcqAnswers[currentMCQ]!==undefined) explain.classList.add('show');
+  else explain.classList.remove('show');
+  updateMCQScore();
+}
+
+function selectMCQ(i) {
+  if (mcqAnswers[currentMCQ] !== undefined) return;
+  mcqAnswers[currentMCQ] = i;
+  localStorage.setItem('pm_mcq', JSON.stringify(mcqAnswers));
+  updateDashboard();
+  renderMCQ();
+}
+
+function nextMCQ() { if (currentMCQ<mcqQuestions.length-1) { currentMCQ++; renderMCQ(); } }
+function prevMCQ() { if (currentMCQ>0) { currentMCQ--; renderMCQ(); } }
+
+function updateMCQScore() {
+  const correct = Object.entries(mcqAnswers).filter(([k,v])=>v===mcqQuestions[k].correct).length;
+  document.getElementById('mcq-score').textContent = `Score: ${correct}/${Object.keys(mcqAnswers).length}`;
+}
+
+// ═══════════════════════════════════════════════════════
+// QUIZ TABS
+// ═══════════════════════════════════════════════════════
+function switchQuizTab(tab, el) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.quiz-section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('quiz-'+tab).classList.add('active');
+  quizTab = tab;
+  if (tab==='scenario') renderScenarioQuiz();
+  if (tab==='star') renderStar();
+}
+
+// ═══════════════════════════════════════════════════════
+// SCENARIO QUIZ
+// ═══════════════════════════════════════════════════════
+function renderScenarioQuiz() {
+  const s = scenarios[currentScenario];
+  document.getElementById('scenario-card').innerHTML = `
+    <div class="q-meta">Scenario ${currentScenario+1} of ${scenarios.length} · PM/PO Context</div>
+    <div class="scenario-box"><div class="s-label">Situation</div>${s.q}</div>
+    <p style="font-size:13px;color:#666;margin-bottom:8px;">Write your answer below, then reveal the ideal response:</p>
+    <textarea class="answer-area" placeholder="What would you do? Think through it step by step..." id="scen-answer"></textarea>
+    <div class="ideal-answer" id="scen-ideal"><strong>✅ Ideal PM/PO Response</strong>${s.ideal}</div>
+    <div class="q-nav" style="margin-top:14px;">
+      <button class="btn btn-outline" onclick="prevScenario()">← Prev</button>
+      <button class="btn btn-gold" onclick="document.getElementById('scen-ideal').classList.toggle('show')">Reveal Answer</button>
+      <button class="btn btn-primary" onclick="nextScenario()">Next →</button>
+    </div>`;
+}
+
+function nextScenario() { if (currentScenario<scenarios.length-1) { currentScenario++; renderScenarioQuiz(); } }
+function prevScenario() { if (currentScenario>0) { currentScenario--; renderScenarioQuiz(); } }
+
+// ═══════════════════════════════════════════════════════
+// STAR
+// ═══════════════════════════════════════════════════════
+function renderStar() {
+  const s = starQuestions[currentStar];
+  document.getElementById('star-card').innerHTML = `
+    <div class="q-meta">STAR Question ${currentStar+1} of ${starQuestions.length} · ${s.role}</div>
+    <div class="q-text">${s.q}</div>
+    <p style="font-size:13px;color:#555;margin-bottom:12px;">Try answering first, then reveal your pre-built STAR answer based on your Army/Drrop experience:</p>
+    <textarea class="answer-area" placeholder="Answer using STAR: Situation → Task → Action → Result..." style="margin-bottom:12px;"></textarea>
+    <button class="btn btn-gold" onclick="document.getElementById('star-reveal').classList.toggle('show')" style="margin-bottom:12px;">Reveal Your STAR Answer</button>
+    <div class="ideal-answer" id="star-reveal">
+      <strong>✅ Your STAR Answer (from your experience)</strong>
+      <div style="margin-top:8px;">
+        <div style="font-weight:700;color:var(--teal);font-size:12px;text-transform:uppercase;margin-bottom:3px;">Situation</div>
+        <p style="margin-bottom:10px;">${s.star.s}</p>
+        <div style="font-weight:700;color:var(--purple);font-size:12px;text-transform:uppercase;margin-bottom:3px;">Task</div>
+        <p style="margin-bottom:10px;">${s.star.t}</p>
+        <div style="font-weight:700;color:var(--gold);font-size:12px;text-transform:uppercase;margin-bottom:3px;">Action</div>
+        <p style="margin-bottom:10px;">${s.star.a}</p>
+        <div style="font-weight:700;color:var(--green);font-size:12px;text-transform:uppercase;margin-bottom:3px;">Result</div>
+        <p>${s.star.r}</p>
+      </div>
+    </div>
+    <div class="q-nav" style="margin-top:16px;">
+      <button class="btn btn-outline" onclick="prevStar()">← Prev</button>
+      <button class="btn btn-primary" onclick="nextStar()">Next →</button>
+    </div>`;
+}
+
+function nextStar() { if (currentStar<starQuestions.length-1) { currentStar++; renderStar(); } }
+function prevStar() { if (currentStar>0) { currentStar--; renderStar(); } }
+
+// ═══════════════════════════════════════════════════════
+// ALL SCENARIOS PAGE
+// ═══════════════════════════════════════════════════════
+function renderAllScenarios() {
+  const wrap = document.getElementById('all-scenarios');
+  wrap.innerHTML = '';
+  scenarios.forEach((s,i) => {
+    wrap.innerHTML += `
+      <div style="margin-bottom:24px;">
+        <div style="font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">Scenario ${i+1}</div>
+        <div class="scenario-box"><div class="s-label">Situation</div>${s.q}</div>
+        <textarea class="answer-area" placeholder="Your answer..." style="margin-bottom:10px;" id="all-scen-${i}"></textarea>
+        <button class="btn btn-gold" onclick="document.getElementById('all-ideal-${i}').classList.toggle('show')">Reveal Ideal Answer</button>
+        <div class="ideal-answer" id="all-ideal-${i}"><strong>✅ Ideal Response</strong>${s.ideal}</div>
+        ${i<scenarios.length-1?'<hr style="border:none;border-top:1px solid #eee;margin-top:24px;">':''}
+      </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// CHEATSHEET
+// ═══════════════════════════════════════════════════════
+function renderCheatsheet() {
+  const grid = document.getElementById('cheatsheet-grid');
+  grid.innerHTML = '';
+  cheatsheetData.forEach(cs => {
+    grid.innerHTML += `<div class="cs-box"><h4>${cs.title}</h4>
+      <table>${cs.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+    </div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// WEEK PLAN
+// ═══════════════════════════════════════════════════════
+function renderWeekPlan() {
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+  weekPlan.forEach((d,i) => {
+    const done = d.concepts.every(id=>learned[id]);
+    grid.innerHTML += `<div class="day-box ${i===0?'today':''} ${done?'done':''}" onclick="showDayDetail(${i})">
+      <div class="day-lbl">${d.day}</div>
+      <div class="day-num">${i+1}</div>
+      <div class="day-topic">${d.topic}</div>
+      ${done?'<div style="color:var(--green);font-size:16px;margin-top:4px;">✓</div>':''}
+    </div>`;
+  });
+  showDayDetail(0);
+}
+
+function showDayDetail(i) {
+  const d = weekPlan[i];
+  const detail = document.getElementById('day-detail');
+  const done = d.concepts.every(id=>learned[id]);
+  detail.innerHTML = `
+    <div class="card" style="margin-top:16px;">
+      <div class="card-title">Day ${i+1} — ${d.day}: ${d.topic}</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+        <span style="background:var(--lgray);padding:6px 14px;border-radius:20px;font-size:13px;">⏱ ${d.hours}</span>
+        ${done?'<span style="background:#F0FFF8;color:var(--green);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:700;">✓ Complete</span>':''}
+      </div>
+      <p style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px;">📚 Concepts to Cover:</p>
+      ${d.concepts.map(id=>{
+        const c = concepts.find(x=>x.id===id);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee;">
+          <div class="concept-check ${learned[id]?'done':''}" style="cursor:pointer;" onclick="toggleLearned('${id}');renderWeekPlan();"></div>
+          <span style="font-size:14px;color:var(--dark);">${c.title}</span>
+        </div>`;
+      }).join('')}
+      <p style="font-size:13px;font-weight:700;color:var(--navy);margin:16px 0 10px;">✅ Today's Tasks:</p>
+      ${d.tasks.map(t=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:13px;color:#333;border-bottom:1px solid #eee;">
+        <span style="color:var(--gold);font-size:16px;margin-top:1px;">▸</span><span>${t}</span>
+      </div>`).join('')}
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="showSection('concepts')">Go to Concepts →</button>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
